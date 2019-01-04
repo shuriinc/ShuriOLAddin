@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9">
+    <title>Map</title>
+</head>
+<style>
+    .infomsg {
+        display: none;
+    }
+</style>
+<body style="margin:0px;">
+    <div id="locmapcanvas" data-tap-disabled="true" style="height:316px; max-width:none; margin:0px;"></div>
+
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAW0NnT2V04njXBI72q-ws8LfEzQsIKLs" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var _location = null;
+        var map;
+        function getAddress(userAddress) {
+            //console.log(userAddress);
+            var geocoder = new google.maps.Geocoder();
+            if (geocoder) {
+                if (userAddress != "") {
+                    try {
+                       geocoder.geocode({ 'address': userAddress }, function (results, status) {
+                            //console.log(results, status);
+                            if (status == google.maps.GeocoderStatus.OK) {
+                                _location = results[0];
+                                //console.log(scope.googleLoc.formatted_address);
+                                var lat = results[0].geometry.location.lat()
+                                var lng = results[0].geometry.location.lng();
+                                var theLatlng = new google.maps.LatLng(lat, lng);
+
+                                var mapOptions = {
+                                    center: theLatlng,
+                                    zoom: 13,
+                                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                                };
+                                map = new google.maps.Map(document.getElementById("locmapcanvas"), mapOptions);
+
+                                var theLoc = new google.maps.Marker({
+                                    position: theLatlng,
+                                    map: map,
+                                    title: "Location"
+                                });
+                                return JSON.stringify(_location);
+                            }
+                            else {
+                                return String.format("Error.  Google Maps was unable to resolve that address.", status, results);
+                            }
+                        });
+                    }
+                    catch (err) {
+                        return "Error. " + err;
+                    }
+                }
+            }
+            else return "Error.  Unable to access Google Maps";
+        }
+
+        function ShowMap(lat, lng) {
+            if (google.maps) {
+                var latLong = new google.maps.LatLng(lat, lng);
+
+                var mapOptions = {
+                    center: latLong,
+                    zoom: 13,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+
+                var locCanvas = document.getElementById("locmapcanvas");
+
+                map = new google.maps.Map(locCanvas, mapOptions);
+
+                var theLoc = new google.maps.Marker({
+                    position: latLong,
+                    map: map,
+                    title: "Location"
+                });
+            }
+
+        }
+
+        function QS(key) {
+            return location.search.match(new RegExp(key + "=(.*?)($|\&)", "i"))[1];
+        }
+
+        var lat = QS("lat");
+        var lng = QS("lng");
+        if (lat && lng) ShowMap(lat, lng);
+        //if (initAddr != null && initAddr.length > 0) getAddress(initAddr);
+        //else ShowMap(39.920000, -105.090000);
+
+    </script>
+</body>
+</html>
